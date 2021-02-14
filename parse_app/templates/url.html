@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+<div style="text-align:center">
+<form method="POST">
+{% csrf_token %}
+    <input type="text" name="url_link" value="">
+    <input type="submit" name="submit" value="Yoxla">
+</form>
+{% for i in data %}
+{% if i|length > 2 %}
+
+    {{ i }}<br>
+    {% endif %}
+{% endfor %}
+<div style="text-align: center">
+                        {% for message in messages %}
+                            <h3 style="color: red" ;> {{ message }} </h3>
+                        {% endfor %}
+                    </div>
+</div>
+</body>
+</html>
