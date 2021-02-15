@@ -1,7 +1,8 @@
-from django.shortcuts import render,HttpResponse
+from django.shortcuts import render, HttpResponse
 import requests
 from bs4 import BeautifulSoup
 from django.contrib import messages
+
 
 # Create your views here.
 
@@ -21,27 +22,44 @@ def test_views(request):
         finish_list = set()
         req = requests.get(url, headers)
         soup = BeautifulSoup(req.content, 'html.parser')
+        # print(soup)
+        print(req.status_code)
+        if req.status_code == 200:
+            if "suwen" in url:
+                parent = soup.find(class_="product-detail-price-and-container my-4 clearfix")
+                my_str = parent.text
 
-        if len(soup) > 10:
-            tags = {tag.name for tag in soup.find_all()}
+                context['data'] = my_str
+                return render(request, 'url.html', context)
 
-            for tag in tags:
-                for i in soup.find_all(tag):
-                    if i.has_attr("class"):
-                        if len(i['class']) != 0:
-                            class_list.append(" ".join(i['class']))
+            else:
+                tags = {tag.name for tag in soup.find_all()}
 
-            for c in class_list:
+                for tag in tags:
+                    for i in soup.find_all(tag):
+                        if i.has_attr("class"):
+                            if len(i['class']) != 0:
+                                class_list.append(" ".join(i['class']))
 
-                if 'prc' in c or 'product__price' in c or 'product_price' in c or 'price' in c:
+                for c in class_list:
 
-                    s = soup.find(class_=c)
+                    if 'prc' in c or 'product__price' in c or 'product_price' in c or 'price' in c:
+                        s = soup.find(class_=c)
 
-                    finish_list.add(s.text)
+                        finish_list.add(s.text)
 
-            context['data'] = finish_list
+                context['data'] = list(finish_list)
+                a = context['data']
+                b = []
 
-            return render(request,'url.html',context)
+                for i in range(len(a)):
+
+                    if a[i] != " " and "%" not in a[i] and len(a[i]) < 10 and a[i] != '' and "\n" not in a[i]:
+                        b.append(a[i])
+
+                context['data'] = sorted(b)[0]
+
+                return render(request, 'url.html', context)
 
         else:
             messages.info(request, 'Bele bir mehsul yoxdur ve ya tehlukesizlik problemi yaranmisdir')
@@ -49,5 +67,4 @@ def test_views(request):
     else:
         return render(request, 'url.html')
 
-    return render(request,'url.html')
-
+    return render(request, 'url.html')
